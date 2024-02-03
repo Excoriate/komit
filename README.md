@@ -7,7 +7,7 @@
 ---
 
 ---
-**KOMIT** is a **CLI** tool that generates [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your projects. Configure your [OpenAI API Key](https://beta.openai.com/signup/) and let the AI do the work for you.
+**KOMIT** is a **CLI** tool that generates [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your projects. Configure your [OpenAI API Key](https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/) and let the AI do the work for you.
 
 ---
 
@@ -47,5 +47,5 @@ Feel free to contact me through:
 
 
 <a href="https://github.com/Excoriate/komit/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Excoriate/komit" />
+  <img src="https://contrib.rocks/image?repo=Excoriate/komit"  alt="Contributors"/>
 </a>

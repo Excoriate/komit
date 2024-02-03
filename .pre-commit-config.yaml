@@ -54,7 +54,7 @@ repos:
       rev: v0.39.0
       hooks:
           - id: markdownlint
-            args: [--fix]
+            args: [--fix, .]
 
     - repo: https://github.com/tcort/markdown-link-check
       rev: v3.11.2
