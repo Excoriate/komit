@@ -1,34 +1,70 @@
 package cmd
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"os"
+	"strings"
+
+	"github.com/excoriate/komit/pkg/cli"
+
+	"github.com/excoriate/komit/internal/app"
+	"github.com/excoriate/komit/internal/ui"
+
+	"github.com/excoriate/komit/cmd/generate"
+
+	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
-	Version string
-	Commit  string
-	Date    string
+	// Command global flags.
+	provider string
+	apikey   string
+	debug    bool
 )
 
 const CLIName = "komit"
 
 var rootCmd = &cobra.Command{
-	Version: "v0.0.1",
-	Use:     CLIName,
+	Use:   CLIName,
+	Short: "A CLI tool to generate conventional commit messages with AI",
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if apikey == "" {
+			apikey = os.Getenv("KOMIT_PROVIDER_APIKEY")
+		}
+
+		// if it's empty, fail.
+		if apikey == "" {
+			ui.Error("", "The (AI) provider's API KEY is not set. You can either set it as an environment variable (KOMIT_PROVIDER_APIKEY) or pass it as a flag --apikey.", nil)
+			os.Exit(1)
+		}
+
+		ctx := cmd.Context()
+		app, err := app.New(ctx, &app.AIProviderOptions{
+			Name:  provider,
+			Token: apikey,
+		})
+
+		if err != nil {
+			ui.Error("", "Cannot initialize Komit", err)
+			os.Exit(1)
+		}
+
+		// Storing the client/App in the context.
+		cmdCtx := context.WithValue(context.Background(), cli.GetCtxKey(), app)
+		cmd.SetContext(cmdCtx)
 	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v, c, d string) {
-	Version = v
-	Commit = c
-	Date = d
+func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -36,16 +72,38 @@ func Execute(v, c, d string) {
 }
 
 func addPersistentFlags() {
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().StringP("oai-key", "", "", "OpenAI API key")
+	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Enabled debug mode")
+	rootCmd.PersistentFlags().StringVarP(&provider, "provider", "", "openai", "Provider to use")
+	rootCmd.PersistentFlags().StringVarP(&apikey, "apikey", "", "", "API Key to use")
+
+	_ = viper.BindPFlags(rootCmd.PersistentFlags())
+}
+
+func addCMDs() {
+	rootCmd.AddCommand(generate.CMD)
 }
 
 func initConfig() {
-	// Expose the CLI name to the Viper configuration.
-	viper.Set("CLI_NAME_TITLE", CLIName)
+	homeDir, _ := os.UserHomeDir()
+	configDir := fmt.Sprintf("%s/.komit", homeDir)
+
+	viper.AddConfigPath(configDir)
+	viper.SetConfigName(CLIName)
+	viper.SetConfigType("yaml")
+	viper.Set("CLI_NAME", CLIName)
+	viper.SetEnvPrefix(strings.ToUpper(CLIName))
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
+			_ = viper.SafeWriteConfigAs(fmt.Sprintf("%s/%s.yaml", configDir, CLIName))
+		}
+	}
 }
 
 func init() {
-	addPersistentFlags()
 	cobra.OnInitialize(initConfig)
+	addPersistentFlags()
+	addCMDs()
 }

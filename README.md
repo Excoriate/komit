@@ -5,6 +5,9 @@
 <p align="center">Conventional commits generated through <b>AI</b> for lazy engineers <b> and not so Lazy as well</b>.<br/><br/>
 
 ---
+[![Go Build](https://github.com/Excoriate/Komit/actions/workflows/go-build.yml/badge.svg)](https://github.com/Excoriate/Komit/actions/workflows/go-build.yml)
+[![Go Linter](https://github.com/Excoriate/Komit/actions/workflows/go-ci-lint.yaml/badge.svg)](https://github.com/Excoriate/Komit/actions/workflows/go-ci-lint.yaml)
+[![Go Tests](https://github.com/Excoriate/Komit/actions/workflows/go-ci-tests.yml/badge.svg)](https://github.com/Excoriate/Komit/actions/workflows/go-ci-tests.yml)
 
 ---
 **KOMIT** is a **CLI** tool that generates [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your projects. Configure your [OpenAI API Key](https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/) and let the AI do the work for you.

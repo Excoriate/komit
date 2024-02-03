@@ -27,9 +27,13 @@ tasks:
     go-ci:
         desc: Execute all the go CI tasks.
         cmds:
-            - |
-              cd {{.mod}} && go mod tidy \
-              && ls -ltrah \
-              && go fmt -x ./... \
-              && go vet ./... \
-              && golangci-lint run -v -E gofmt --config ../.golangci.yml
+            - task: golang:go-tidy
+            - task: golang:go-fmt
+            - task: golang:go-vet
+            - task: golang:go-lint
+            - task: golang:go-test
+
+    cli:
+        desc: Run the CLI
+        cmds:
+            - go run main.go -- {{.CLI_ARGS}}
