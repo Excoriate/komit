@@ -1,6 +1,8 @@
 package main
 
-import "github.com/excoriate/komit/cmd"
+import (
+	"github.com/excoriate/komit/cmd"
+)
 
 var (
 	version = "dev"

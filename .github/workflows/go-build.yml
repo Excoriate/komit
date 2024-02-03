@@ -31,7 +31,8 @@ jobs:
               with:
                   go-version: ~1.21
             - name: Build for ${{ matrix.goos }}/${{ matrix.goarch }}
-              working-directory: ${{ github.workspace }}/cli
+#              working-directory: ${{ github.workspace }}/cli
+              working-directory: ${{ github.workspace }}
               run: |
                   GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o bin/${{ env.CLI_NAME }}
     build-supported-go-version:
@@ -49,6 +50,7 @@ jobs:
               with:
                   go-version: ${{ matrix.go-versions }}
             - name: Build for ${{ matrix.go-versions }}
-              working-directory: ${{ github.workspace }}/cli
+#              working-directory: ${{ github.workspace }}/cli
+              working-directory: ${{ github.workspace }}
               run: |
                   go build -o bin/${{ env.CLI_NAME }}
