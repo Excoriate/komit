@@ -45,6 +45,8 @@ repos:
       hooks:
           - id: go-fmt
             files: ^(pkg|cli|cmd)/(.*/)*.*\.go$
+          - id: go-vet
+            files: ^(pkg|cli|cmd)/(.*/)*.*\.go$
           - id: go-build
             files: ^(pkg|cli|cmd)/(.*/)*.*\.go$
           - id: go-mod-tidy
@@ -63,3 +65,9 @@ repos:
             args:
                 - -q
                 - --config=.markdown-link-check.json
+
+    - repo: https://github.com/golangci/golangci-lint
+      rev: v1.55.2
+      hooks:
+          - id: golangci-lint
+            args: [--config, .golangci.yml]
