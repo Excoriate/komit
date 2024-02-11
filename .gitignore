@@ -41,5 +41,4 @@
 *.zip
 
 # Ignore TerraDagger specific files.
-terradagger-cli
-.terradagger
+komit

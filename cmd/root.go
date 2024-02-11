@@ -24,19 +24,26 @@ var (
 	provider string
 	apikey   string
 	debug    bool
+	model    string
 )
 
 const CLIName = "komit"
 
 var rootCmd = &cobra.Command{
 	Use:   CLIName,
-	Short: "A CLI tool to generate conventional commit messages with AI",
+	Short: "A CLI tool to generate different things in Git, with AI, for lazy developers.",
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if apikey == "" {
-			apikey = os.Getenv("KOMIT_PROVIDER_APIKEY")
+		apikeyViper := viper.GetString("apikey")
+		if apikeyViper != "" {
+			apikey = apikeyViper
+		}
+
+		apikeyEnv := os.Getenv("KOMIT_PROVIDER_APIKEY")
+		if apikeyEnv != "" {
+			apikey = apikeyEnv
 		}
 
 		// if it's empty, fail.
@@ -47,8 +54,9 @@ var rootCmd = &cobra.Command{
 
 		ctx := cmd.Context()
 		app, err := app.New(ctx, &app.AIProviderOptions{
-			Name:  provider,
-			Token: apikey,
+			Name:      provider,
+			AuthToken: apikey,
+			Model:     viper.GetString("model"),
 		})
 
 		if err != nil {
@@ -73,14 +81,11 @@ func Execute() {
 
 func addPersistentFlags() {
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Enabled debug mode")
-	rootCmd.PersistentFlags().StringVarP(&provider, "provider", "", "openai", "Provider to use")
+	rootCmd.PersistentFlags().StringVarP(&provider, "provider", "", "openai", "AIProvider to use")
 	rootCmd.PersistentFlags().StringVarP(&apikey, "apikey", "", "", "API Key to use")
+	rootCmd.PersistentFlags().StringVarP(&model, "model", "", "gpt-3.5-turbo", "Model to use. Since the default provider is OpenAI, the default model is gpt-3.5-turbo")
 
 	_ = viper.BindPFlags(rootCmd.PersistentFlags())
-}
-
-func addCMDs() {
-	rootCmd.AddCommand(generate.CMD)
 }
 
 func initConfig() {
@@ -103,7 +108,7 @@ func initConfig() {
 }
 
 func init() {
+	rootCmd.AddCommand(generate.CMD)
 	cobra.OnInitialize(initConfig)
 	addPersistentFlags()
-	addCMDs()
 }

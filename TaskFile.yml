@@ -5,6 +5,7 @@ dotenv: ['.env.{{.ENV}}.aws', '.env.{{.ENV}}.terraform', '.env.{{.ENV}}.oai', .e
 vars:
     mod:
     fn:
+    PROJECT_NAME: komit
 
 includes:
     precommit:
@@ -36,4 +37,19 @@ tasks:
     cli:
         desc: Run the CLI
         cmds:
-            - go run main.go -- {{.CLI_ARGS}}
+            - go run main.go {{.CLI_ARGS}}
+
+    build:
+        desc: Build the CLI
+        cmds:
+            - |
+              if [ -f {{.PROJECT_NAME}} ]; then
+                  rm {{.PROJECT_NAME}}
+              fi
+            - go build -o {{.PROJECT_NAME}} main.go
+
+    clibin:
+        desc: Build the CLI
+        deps: [build]
+        cmds:
+            - ./{{.PROJECT_NAME}} {{.CLI_ARGS}}

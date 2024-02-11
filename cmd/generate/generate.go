@@ -4,6 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/spf13/viper"
+
+	"github.com/excoriate/komit/cmd/generate/commit"
+
 	"github.com/excoriate/komit/internal/ui"
 
 	"github.com/excoriate/komit/internal/app"
@@ -11,10 +15,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	ignoreTokenLimit bool
+)
+
 var CMD = &cobra.Command{
 	Use:   "generate",
-	Short: "Generate a new commit (conventional) message",
+	Short: "Generate several related things, such as conventional commit messages, pull request titles, etc.",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			_ = cmd.Help()
+		}
+
 		ctx := cmd.Context().Value(cli.GetCtxKey())
 		if ctx == nil {
 			log.Fatal("Unable to get the client context.")
@@ -28,5 +40,9 @@ var CMD = &cobra.Command{
 	},
 }
 
-// func init() {
-//}
+func init() {
+	CMD.AddCommand(commit.CMD)
+	CMD.Flags().BoolVarP(&ignoreTokenLimit, "ignore-token-limit", "", false, "Ignore the tokens limit (by default, 2048 tokens) when generating data through the AI provider.")
+
+	_ = viper.BindPFlags(CMD.Flags())
+}
